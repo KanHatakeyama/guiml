@@ -100,8 +100,18 @@ class GUIML:
 
         add_button.on_click(add_button_clicked)
         remove_button.on_click(remove_button_clicked)
-        return display(widgets.HBox([self.non_use_col_w, self.use_col_w]),
-                       widgets.HBox([remove_button, add_button]))
+
+        # target
+        self.target_col_w = widgets.Select(
+            description='Target',
+            options=list(df.columns),
+        )
+
+        return display(
+            self.target_col_w,
+            widgets.HBox([self.non_use_col_w, self.use_col_w]),
+            widgets.HBox([remove_button, add_button]),
+        )
 
     def get_selected_column_df(self, df=None):
         if df is None:
@@ -109,6 +119,12 @@ class GUIML:
 
         self.setting_dict["use_cols"] = list(self.use_col_w.options)
         self.setting_dict["non_use_cols"] = list(self.non_use_col_w.options)
+        self.setting_dict["target_col"] = self.target_col_w.value
 
         self._save()
-        return df[self.setting_dict["use_cols"]]
+
+        cols = [self.setting_dict["target_col"]]
+        cols.extend(self.setting_dict["use_cols"])
+        self.sel_df = df[cols]
+
+        return self.sel_df
