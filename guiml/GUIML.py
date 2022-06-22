@@ -52,20 +52,26 @@ class GUIML:
         return df
 
     def select_columns(self, df=None):
+        """
+        Select box to choose columns for ML
+        """
         if df is None:
             df = self.df
         else:
             self.df = df
 
+        # initial vals
         if not "use_cols" in self.setting_dict:
             self.setting_dict["use_cols"] = []
             self.setting_dict["non_use_cols"] = list(df.columns)
+            self.setting_dict["target_col"] = None
 
         for c in df.columns:
             if c not in self.setting_dict["use_cols"]:
                 if c not in self.setting_dict["non_use_cols"]:
                     self.setting_dict["non_use_cols"].append(c)
 
+        # button click
         def add_button_clicked(b):
             self.setting_dict["use_cols"].extend(self.non_use_col_w.value)
             self.use_col_w.options = self.setting_dict["use_cols"]
@@ -83,18 +89,20 @@ class GUIML:
 
             self.use_col_w.options = self.setting_dict["use_cols"]
 
-        add_button = widgets.Button(
-            description="Add", command=add_button_clicked)
-        remove_button = widgets.Button(description="Remove")
+        # widgets
+        add_button = widgets.Button(description="->")
+        remove_button = widgets.Button(description="<-")
 
         self.non_use_col_w = widgets.SelectMultiple(
             description='Non-use',
             options=self.setting_dict["non_use_cols"],
             disabled=False
         )
+        value = self.setting_dict["use_cols"]
         self.use_col_w = widgets.SelectMultiple(
             description='Use',
             options=self.setting_dict["use_cols"],
+            value=value,
             disabled=False
         )
 
@@ -105,6 +113,7 @@ class GUIML:
         self.target_col_w = widgets.Select(
             description='Target',
             options=list(df.columns),
+            value=self.setting_dict["target_col"]
         )
 
         return display(
