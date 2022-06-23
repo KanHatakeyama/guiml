@@ -1,8 +1,11 @@
 import glob
+import numpy as np
 import os
 import ipywidgets as widgets
 import joblib
 import pandas as pd
+
+import random
 from .Chem.Autodescriptor import AutoDescriptor, RDKitDescriptors, GroupContMethod, MordredDescriptor, Fingerprint
 
 TEMP_SAVE_FOLDER = "_guiml"
@@ -210,3 +213,37 @@ class GUIML:
                             right_index=True, how="outer")
         self.df = merge_df
         return merge_df
+
+    def get_dataset(self, test_ratio=0.2, sel_df=None, category_col_name="dataset_category"):
+        if sel_df is None:
+            sel_df = self.sel_df
+
+        # drop nan
+        sel_df = sel_df[sel_df[self.setting_dict["target_col"]]
+                        == sel_df[self.setting_dict["target_col"]]]
+
+        # split train test
+        tot_records = sel_df.shape[0]
+        n_test = int(tot_records*test_ratio)
+
+        category_list = ["train"]*tot_records
+        category_list[:n_test] = ["test"]*n_test
+        random.shuffle(category_list)
+
+        sel_df[category_col_name] = category_list
+
+        tr_df = sel_df[sel_df[category_col_name] == "train"]
+        te_df = sel_df[sel_df[category_col_name] == "test"]
+
+        # set X and y
+        self.tr_X = tr_df.drop([self.setting_dict["target_col"],
+                                category_col_name], axis=1)
+        self.tr_y = tr_df[[self.setting_dict["target_col"]]]
+        self.te_X = te_df.drop([self.setting_dict["target_col"],
+                                category_col_name], axis=1)
+        self.te_y = te_df[[self.setting_dict["target_col"]]]
+
+        self.tr_y = np.array(self.tr_y.values).reshape(-1)
+        self.te_y = np.array(self.te_y.values).reshape(-1)
+
+        return self.tr_X, self.te_X, self.tr_y, self.te_y
