@@ -171,9 +171,11 @@ class GUIML:
             self._smiles_col_w,
             self._mol_descriptor_w)
 
-    def calculate_mol_descriptors(self, df=None):
-        if df is None:
-            df = self.df
+    def calculate_mol_descriptors(self, smiles_list=None):
+        only_desc_df_mode = True
+        if smiles_list is None:
+            smiles_list = list(self.df[self.setting_dict["SMILES_col"]])
+            only_desc_df_mode = False
 
         # update form info
         self.setting_dict["SMILES_col"] = self._smiles_col_w.value
@@ -198,6 +200,13 @@ class GUIML:
 
         # calcualte
 
-        desc_df = desc_calculator(
-            list(self.df[self.setting_dict["SMILES_col"]]))
-        return desc_df
+        desc_df = desc_calculator(smiles_list)
+
+        # return only descriptors
+        if only_desc_df_mode:
+            return desc_df
+        desc_df = desc_df.drop(self.setting_dict["SMILES_col"], axis=1)
+        merge_df = pd.merge(self.df, desc_df, left_index=True,
+                            right_index=True, how="outer")
+        self.df = merge_df
+        return merge_df
