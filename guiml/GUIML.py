@@ -12,10 +12,12 @@ TEMP_SAVE_FOLDER = "_guiml"
 
 
 class GUIML:
-    def __init__(self, notebook_name):
+    def __init__(self, notebook_name,
+                 category_col_name="dataset_category"):
         """
 
         """
+        self.category_col_name = category_col_name
         self.notebook_name = notebook_name
         self.setting_path = TEMP_SAVE_FOLDER+"/"+notebook_name+".bin"
 
@@ -214,7 +216,7 @@ class GUIML:
         self.df = merge_df
         return merge_df
 
-    def get_dataset(self, test_ratio=0.2, sel_df=None, category_col_name="dataset_category"):
+    def get_dataset(self, test_ratio=0.2, sel_df=None):
         if sel_df is None:
             sel_df = self.sel_df
 
@@ -230,20 +232,22 @@ class GUIML:
         category_list[:n_test] = ["test"]*n_test
         random.shuffle(category_list)
 
-        sel_df[category_col_name] = category_list
+        sel_df[self.category_col_name] = category_list
 
-        tr_df = sel_df[sel_df[category_col_name] == "train"]
-        te_df = sel_df[sel_df[category_col_name] == "test"]
+        tr_df = sel_df[sel_df[self.category_col_name] == "train"]
+        te_df = sel_df[sel_df[self.category_col_name] == "test"]
 
         # set X and y
         self.tr_X = tr_df.drop([self.setting_dict["target_col"],
-                                category_col_name], axis=1)
+                                self.category_col_name], axis=1)
         self.tr_y = tr_df[[self.setting_dict["target_col"]]]
         self.te_X = te_df.drop([self.setting_dict["target_col"],
-                                category_col_name], axis=1)
+                                self.category_col_name], axis=1)
         self.te_y = te_df[[self.setting_dict["target_col"]]]
 
         self.tr_y = np.array(self.tr_y.values).reshape(-1)
         self.te_y = np.array(self.te_y.values).reshape(-1)
+
+        self.dataset_df = sel_df
 
         return self.tr_X, self.te_X, self.tr_y, self.te_y
