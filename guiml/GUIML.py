@@ -238,11 +238,10 @@ class GUIML:
         te_df = sel_df[sel_df[self.category_col_name] == "test"]
 
         # set X and y
-        self.tr_X = tr_df.drop([self.setting_dict["target_col"],
-                                self.category_col_name], axis=1)
+        self.tr_X = self._prepare_X(tr_df)
         self.tr_y = tr_df[[self.setting_dict["target_col"]]]
-        self.te_X = te_df.drop([self.setting_dict["target_col"],
-                                self.category_col_name], axis=1)
+
+        self.te_X = self._prepare_X(te_df)
         self.te_y = te_df[[self.setting_dict["target_col"]]]
 
         self.tr_y = np.array(self.tr_y.values).reshape(-1)
@@ -251,3 +250,12 @@ class GUIML:
         self.dataset_df = sel_df
 
         return self.tr_X, self.te_X, self.tr_y, self.te_y
+
+    def _prepare_X(self, df):
+        for col in [self.setting_dict["target_col"],
+                    self.category_col_name,
+                    "predicted"]:
+
+            if col in df.columns:
+                df = df.drop(col, axis=1)
+        return df
