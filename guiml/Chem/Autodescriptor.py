@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 from numpy import inf
 from rdkit.Avalon.pyAvalonTools import GetAvalonFP
-#from .JRWrapper import JRWrapper
+from .JRWrapper import JRWrapper
 import os
 import zlib
 import base64
@@ -32,7 +32,7 @@ def unzip_str(text: str) -> str:
 
 
 # folder path to save descriptor data
-sm_path = "descriptor_data"
+sm_path = "_guiml/descriptor_data"
 
 
 # make mol object from smiles
