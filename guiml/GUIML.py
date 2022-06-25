@@ -179,7 +179,7 @@ class GUIML:
     def calculate_mol_descriptors(self, smiles_list=None):
         only_desc_df_mode = True
         if smiles_list is None:
-            smiles_list = list(self.df[self.setting_dict["SMILES_col"]])
+            smiles_list = list(self.df[self._smiles_col_w.value])
             only_desc_df_mode = False
 
         # update form info
