@@ -253,7 +253,10 @@ class GUIML:
             return desc_df
         desc_df = desc_df.drop(
             self.setting["csv"][self.csv]["SMILES_col"], axis=1)
-        merge_df = pd.merge(self.df, desc_df, left_index=True,
+
+        merge_cols = list(desc_df.columns)
+        merge_cols = [i for i in merge_cols if i not in list(self.df.columns)]
+        merge_df = pd.merge(self.df, desc_df[merge_cols], left_index=True,
                             right_index=True, how="outer")
         self.df = merge_df
         return merge_df
