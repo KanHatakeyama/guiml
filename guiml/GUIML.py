@@ -89,7 +89,7 @@ class GUIML:
             self.df = df
 
         # initial vals
-        if not "use_cols" in self.setting["csv"]:
+        if not "use_cols" in self.setting["csv"][self.csv]:
             self.setting["csv"][self.csv]["use_cols"] = []
             self.setting["csv"][self.csv]["non_use_cols"] = list(df.columns)
             self.setting["csv"][self.csv]["target_col"] = None
@@ -316,6 +316,10 @@ class GUIML:
 
             self.setting["csv"][self.csv]["plot_cols"] = plot_cols
 
+        for k in ["x", "y", "hue"]:
+            if self.setting["csv"][self.csv]["plot_cols"][k] not in list(df.columns):
+                self.setting["csv"][self.csv]["plot_cols"][k] = first_column
+
         # apply selected values
         try:
             self.setting["csv"][self.csv]["plot_cols"]["x"] = self.w_x.value
@@ -324,6 +328,9 @@ class GUIML:
         except:
             pass
 
+        for k in ["x", "y", "hue"]:
+            if self.setting["csv"][self.csv]["plot_cols"][k] not in list(df.columns):
+                self.setting["csv"][self.csv]["plot_cols"][k] = first_column
         # select box
         box, self.w_x, self.w_y, self.w_hue = select_plot_columns(df,
                                                                   self.setting["csv"][self.csv]["plot_cols"]["x"],

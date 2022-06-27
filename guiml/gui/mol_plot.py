@@ -1,3 +1,4 @@
+import string
 import ipywidgets as widgets
 from io import BytesIO
 import base64
@@ -12,7 +13,13 @@ from bokeh.transform import factor_cmap
 from bokeh.io import show
 
 
-def b64_image_files(images):
+"""
+plot chemical data
+
+"""
+
+
+def b64_image_files(images: list):
     urls = []
     for im in images:
         out = BytesIO()
@@ -24,7 +31,9 @@ def b64_image_files(images):
     return urls
 
 
-def prepare_images(show_df, df, smiles_col):
+def prepare_images(show_df: pd.DataFrame,
+                   df: pd.DataFrame,
+                   smiles_col: list):
     # make molecular images
     images = []
     for smiles in df[smiles_col]:
@@ -40,7 +49,10 @@ def prepare_images(show_df, df, smiles_col):
     return show_df
 
 
-def bokeh_plot(show_df, col_x, col_y, hue_name):
+def bokeh_plot(show_df: pd.DataFrame,
+               col_x: string,
+               col_y: string,
+               hue_name: string):
     source = ColumnDataSource(show_df)
     vmax = max(show_df[hue_name])
     vmin = min(show_df[hue_name])
