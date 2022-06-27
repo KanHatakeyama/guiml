@@ -19,6 +19,7 @@ import os
 import zlib
 import base64
 import joblib
+from tqdm import tqdm
 
 
 def zip_str(text: str) -> str:
@@ -117,7 +118,11 @@ class RDKitDescriptors:
 
         else:
             # calculate newly
-            descs = self._desc_calc(smiles)
+            try:
+                descs = self._desc_calc(smiles)
+            except:
+                print(f"error calculating {smiles}")
+                descs = self._desc_calc("C")
 
         if self.auto_correct:
             descs = auto_correct_descs(descs)
@@ -142,7 +147,7 @@ class RDKitDescriptors:
         """
         temp_mode = self.dict_mode
         self.dict_mode = False
-        res_list = [self.calc(i) for i in ls]
+        res_list = [self.calc(i) for i in tqdm(ls)]
         self.dict_mode = temp_mode
 
         if pandas_mode:

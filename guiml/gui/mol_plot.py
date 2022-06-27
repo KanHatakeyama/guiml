@@ -31,14 +31,23 @@ def b64_image_files(images: list):
     return urls
 
 
+def sm_to_img(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    img = Draw.MolToImage(mol, size=(128*2, 128*2))
+    return img
+
+
 def prepare_images(show_df: pd.DataFrame,
                    df: pd.DataFrame,
                    smiles_col: list):
     # make molecular images
     images = []
     for smiles in df[smiles_col]:
-        images.append(Draw.MolToImage(
-            Chem.MolFromSmiles(smiles), size=(128*2, 128*2)))
+        try:
+            img = sm_to_img(smiles)
+        except:
+            img = sm_to_img("C")
+        images.append(img)
 
     filenames = b64_image_files(images)
     img_df = pd.DataFrame()
@@ -83,7 +92,7 @@ def bokeh_plot(show_df: pd.DataFrame,
                tooltips=TOOLTIPS)
 
     # numerical hue
-    if show_df[hue_name].dtype is pd.Series([1.]).dtype:
+    if show_df[hue_name].dtype is pd.Series([1.]).dtype or show_df[hue_name].dtype is pd.Series([1]).dtype:
         mapper = linear_cmap(field_name=hue_name,
                              palette=Turbo256, low=vmin, high=vmax)
     else:
