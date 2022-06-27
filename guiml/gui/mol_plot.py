@@ -81,9 +81,12 @@ def bokeh_plot(show_df, col_x, col_y, hue_name):
                              palette=Turbo256, low=vmin, high=vmax)
     else:
         # categorical
-        mapper = factor_cmap(hue_name,
-                             palette="Spectral5",
-                             factors=sorted(show_df[hue_name].unique()))
+        try:
+            mapper = factor_cmap(hue_name,
+                                 palette="Spectral5",
+                                 factors=sorted(show_df[hue_name].unique()))
+        except:
+            mapper = None
 
     p.circle(x=col_x, y=col_y, source=source, size=12, color=mapper)
 
@@ -97,24 +100,30 @@ def bokeh_plot(show_df, col_x, col_y, hue_name):
     # return show(p, notebook_handle=True)
 
 
-def preprare_gui(show_df):
+def select_plot_columns(show_df,
+                        x=None,
+                        y=None,
+                        hue=None):
 
     col_list = list(show_df.columns)
 
     plot_col_x_w = widgets.Select(
         description='x',
         options=col_list,
-        disabled=False
+        disabled=False,
+        value=x,
     )
     plot_col_y_w = widgets.Select(
         description='y',
         options=col_list,
-        disabled=False
+        disabled=False,
+        value=y,
     )
     plot_col_hue_w = widgets.Select(
         description='hue',
         options=col_list,
-        disabled=False
+        disabled=False,
+        value=hue,
     )
 
     box = widgets.HBox([plot_col_x_w, plot_col_y_w, plot_col_hue_w])

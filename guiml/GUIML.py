@@ -7,6 +7,7 @@ import pandas as pd
 
 import random
 from .Chem.Autodescriptor import AutoDescriptor, RDKitDescriptors, GroupContMethod, MordredDescriptor, Fingerprint
+from .gui.mol_plot import bokeh_plot, select_plot_columns
 
 TEMP_SAVE_FOLDER = "_guiml"
 
@@ -27,6 +28,7 @@ class GUIML:
 
         if not os.path.exists(self.setting_path):
             self.setting = {}
+            self.setting["csv"] = {}
         else:
             self.setting = joblib.load(self.setting_path)
 
@@ -44,7 +46,7 @@ class GUIML:
 
         # set default value (by loading dict)
         if "current_csv" in self.setting:
-            candidate_path = self.csv
+            candidate_path = self.setting["current_csv"]
             if candidate_path in file_path_list:
                 value = candidate_path
 
@@ -151,6 +153,9 @@ class GUIML:
         )
 
     def get_selected_column_df(self, df=None):
+        """
+        select explanatory and target variables
+        """
         if df is None:
             df = self.df
 
@@ -169,6 +174,9 @@ class GUIML:
         return self.sel_df
 
     def select_mol_descriptors(self):
+        """
+        select SMILES column and descriptor types
+        """
         if "SMILES_col" not in self.setting["csv"][self.csv]:
             self.setting["csv"][self.csv]["SMILES_col"] = None
         if "descriptors" not in self.setting["csv"][self.csv]:
@@ -192,6 +200,13 @@ class GUIML:
             self._mol_descriptor_w)
 
     def calculate_mol_descriptors(self, smiles_list=None):
+        """
+        calculate molecular descriptors
+        """
+
+        if self._smiles_col_w.value is None:
+            raise ValueError("Please select a SMILES column")
+
         only_desc_df_mode = True
         if smiles_list is None:
             smiles_list = list(self.df[self._smiles_col_w.value])
@@ -275,3 +290,39 @@ class GUIML:
             if col in df.columns:
                 df = df.drop(col, axis=1)
         return df
+
+    def plot(self, df=None):
+        if df is None:
+            df = self.df
+
+        first_column = list(df.columns)[0]
+        # initiate dict
+        if "plot_cols" not in self.setting["csv"][self.csv]:
+            plot_cols = {}
+            for k in ["x", "y", "hue"]:
+                if k not in plot_cols:
+                    plot_cols[k] = first_column
+
+            self.setting["csv"][self.csv]["plot_cols"] = plot_cols
+
+        # apply selected values
+        try:
+            self.setting["csv"][self.csv]["plot_cols"]["x"] = self.w_x.value
+            self.setting["csv"][self.csv]["plot_cols"]["y"] = self.w_y.value
+            self.setting["csv"][self.csv]["plot_cols"]["hue"] = self.w_hue.value
+        except:
+            pass
+
+        # select box
+        box, self.w_x, self.w_y, self.w_hue = select_plot_columns(df,
+                                                                  self.setting["csv"][self.csv]["plot_cols"]["x"],
+                                                                  self.setting["csv"][self.csv]["plot_cols"]["y"],
+                                                                  self.setting["csv"][self.csv]["plot_cols"]["hue"],
+                                                                  )
+        display(box)
+
+        # plot graph
+        bokeh_plot(df,
+                   self.setting["csv"][self.csv]["plot_cols"]["x"],
+                   self.setting["csv"][self.csv]["plot_cols"]["y"],
+                   self.setting["csv"][self.csv]["plot_cols"]["hue"],)
