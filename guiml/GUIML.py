@@ -261,17 +261,22 @@ class GUIML:
         self.df = merge_df
         return merge_df
 
-    def get_dataset(self, test_ratio=0.2, sel_df=None):
+    def get_dataset(self, id_selector, sel_df=None):
         """
         automatically prepare dataset by random splitting
         """
         if sel_df is None:
             sel_df = self.sel_df
 
+        sel_df.loc[id_selector.train_ids, self.category_col_name] = "train"
+        sel_df.loc[id_selector.test_ids, self.category_col_name] = "test"
+
         # drop nan
         sel_df = sel_df[sel_df[self.setting["csv"][self.csv]["target_col"]]
                         == sel_df[self.setting["csv"][self.csv]["target_col"]]]
 
+        """
+        test_ratio=0.2
         # split train test
         tot_records = sel_df.shape[0]
         n_test = int(tot_records*test_ratio)
@@ -281,6 +286,7 @@ class GUIML:
         random.shuffle(category_list)
 
         sel_df[self.category_col_name] = category_list
+        """
 
         tr_df = sel_df[sel_df[self.category_col_name] == "train"]
         te_df = sel_df[sel_df[self.category_col_name] == "test"]

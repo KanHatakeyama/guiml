@@ -64,6 +64,7 @@ class IDSelector:
 
         random_button = widgets.Button(description="Random Split")
         random_button.on_click(random_button_clicked)
+
         display(
             widgets.HBox([select_train_id_w, select_test_id_w]),
             widgets.HBox([remove_button, add_button]),
