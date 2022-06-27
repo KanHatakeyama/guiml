@@ -57,7 +57,18 @@ class GUIML:
             disabled=False,
             value=value
         )
-        return display(self._select_csv_w)
+
+        # reset setting button
+        def button_clicked(b):
+            self.setting = {}
+            self._save()
+            self.setting["csv"] = {}
+
+        # widgets
+        button = widgets.Button(description="Reset settings")
+        button.on_click(button_clicked)
+
+        return display(self._select_csv_w, button)
 
     def load_csv(self):
         """
