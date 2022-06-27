@@ -248,6 +248,9 @@ class GUIML:
         return merge_df
 
     def get_dataset(self, test_ratio=0.2, sel_df=None):
+        """
+        automatically prepare dataset by random splitting
+        """
         if sel_df is None:
             sel_df = self.sel_df
 
@@ -283,6 +286,10 @@ class GUIML:
         return self.tr_X, self.te_X, self.tr_y, self.te_y
 
     def _prepare_X(self, df):
+        """
+        get explanatory variables
+        """
+
         for col in [self.setting["csv"][self.csv]["target_col"],
                     self.category_col_name,
                     "predicted"]:
@@ -292,6 +299,10 @@ class GUIML:
         return df
 
     def plot(self, df=None):
+        """
+        plot dataframe
+        """
+
         if df is None:
             df = self.df
 

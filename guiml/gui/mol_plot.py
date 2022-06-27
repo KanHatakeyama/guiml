@@ -1,6 +1,5 @@
 import ipywidgets as widgets
 from io import BytesIO
-from PIL import Image
 import base64
 from rdkit.Chem import Draw
 from rdkit import Chem
@@ -8,12 +7,9 @@ import pandas as pd
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Turbo256
 from bokeh.transform import linear_cmap
-from bokeh.models import CategoricalColorMapper
-from bokeh.plotting import output_notebook, figure, show
-from bokeh import plotting as bplot
+from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
-from ipywidgets import interact
-from bokeh.io import output_notebook, push_notebook, show
+from bokeh.io import show
 
 
 def b64_image_files(images):
@@ -67,7 +63,6 @@ def bokeh_plot(show_df, col_x, col_y, hue_name):
     """
 
     # bplot.output_file('plot.html')
-    # グラフ初期設定
     tools = "pan,box_zoom,lasso_select,box_select,poly_select,tap,wheel_zoom,reset,save,zoom_in"
     p = figure(tools=tools,
                title=hue_name,
