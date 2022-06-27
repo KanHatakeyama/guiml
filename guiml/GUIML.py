@@ -12,57 +12,68 @@ TEMP_SAVE_FOLDER = "_guiml"
 
 
 class GUIML:
-    def __init__(self, notebook_name,
+    def __init__(self, save_name="guiml",
                  category_col_name="dataset_category"):
         """
 
         """
         self.category_col_name = category_col_name
-        self.notebook_name = notebook_name
-        self.setting_path = TEMP_SAVE_FOLDER+"/"+notebook_name+".bin"
+        self.save_name = save_name
+        self.setting_path = TEMP_SAVE_FOLDER+"/"+save_name+".bin"
 
+        # load dict data
         if not os.path.exists(TEMP_SAVE_FOLDER):
             os.mkdir(TEMP_SAVE_FOLDER)
 
         if not os.path.exists(self.setting_path):
-            self.setting_dict = {}
+            self.setting = {}
         else:
-            self.setting_dict = joblib.load(self.setting_path)
+            self.setting = joblib.load(self.setting_path)
 
     def _save(self):
-        joblib.dump(self.setting_dict, self.setting_path)
+        joblib.dump(self.setting, self.setting_path)
 
     def select_csv(self, regex="database/*.csv"):
         """
-        select csv path
+        select box of csv files 
         """
         file_path_list = glob.glob(regex)
 
+        # set default value
         value = file_path_list[0]
-        if "csv_path" in self.setting_dict:
-            candidate_path = self.setting_dict["csv_path"]
 
+        # set default value (by loading dict)
+        if "current_csv" in self.setting:
+            candidate_path = self.csv
             if candidate_path in file_path_list:
                 value = candidate_path
 
+        # widget
         self._select_csv_w = widgets.Select(
             options=file_path_list,
             description='Select database file',
             disabled=False,
             value=value
         )
-        try:
-            return display(self._select_csv_w)
-        except:
-            return self._select_csv_w
+        return display(self._select_csv_w)
 
     def load_csv(self):
         """
         load csv data
         """
-        self.setting_dict["csv_path"] = self._select_csv_w.value
-        df = pd.read_csv(self.setting_dict["csv_path"])
+
+        # set current csv
+        self.setting["current_csv"] = self._select_csv_w.value
+        self.csv = self._select_csv_w.value
+
+        # make new dict for the csv
+        if self.csv not in self.setting["csv"]:
+            self.setting["csv"][self.csv] = {}
+
+        # load
+        df = pd.read_csv(self.csv)
         self.df = df
+
         self._save()
         return df
 
@@ -76,33 +87,35 @@ class GUIML:
             self.df = df
 
         # initial vals
-        if not "use_cols" in self.setting_dict:
-            self.setting_dict["use_cols"] = []
-            self.setting_dict["non_use_cols"] = list(df.columns)
-            self.setting_dict["target_col"] = None
+        if not "use_cols" in self.setting["csv"]:
+            self.setting["csv"][self.csv]["use_cols"] = []
+            self.setting["csv"][self.csv]["non_use_cols"] = list(df.columns)
+            self.setting["csv"][self.csv]["target_col"] = None
 
         for c in df.columns:
-            if c not in self.setting_dict["use_cols"]:
-                if c not in self.setting_dict["non_use_cols"]:
-                    self.setting_dict["non_use_cols"].append(c)
+            if c not in self.setting["csv"][self.csv]["use_cols"]:
+                if c not in self.setting["csv"][self.csv]["non_use_cols"]:
+                    self.setting["csv"][self.csv]["non_use_cols"].append(c)
 
         # button click
         def add_button_clicked(b):
-            self.setting_dict["use_cols"].extend(self._non_use_col_w.value)
-            self._use_col_w.options = self.setting_dict["use_cols"]
+            self.setting["csv"][self.csv]["use_cols"].extend(
+                self._non_use_col_w.value)
+            self._use_col_w.options = self.setting["csv"][self.csv]["use_cols"]
 
             for v in self._non_use_col_w.value:
-                self.setting_dict["non_use_cols"].remove(v)
-            self._non_use_col_w.options = self.setting_dict["non_use_cols"]
+                self.setting["csv"][self.csv]["non_use_cols"].remove(v)
+            self._non_use_col_w.options = self.setting["csv"][self.csv]["non_use_cols"]
 
         def remove_button_clicked(b):
-            self.setting_dict["non_use_cols"].extend(self._use_col_w.value)
-            self._non_use_col_w.options = self.setting_dict["non_use_cols"]
+            self.setting["csv"][self.csv
+                                ]["non_use_cols"].extend(self._use_col_w.value)
+            self._non_use_col_w.options = self.setting["csv"][self.csv]["non_use_cols"]
 
             for v in self._use_col_w.value:
-                self.setting_dict["use_cols"].remove(v)
+                self.setting["csv"][self.csv]["use_cols"].remove(v)
 
-            self._use_col_w.options = self.setting_dict["use_cols"]
+            self._use_col_w.options = self.setting["csv"][self.csv]["use_cols"]
 
         # widgets
         add_button = widgets.Button(description="->")
@@ -110,13 +123,13 @@ class GUIML:
 
         self._non_use_col_w = widgets.SelectMultiple(
             description='Non-use',
-            options=self.setting_dict["non_use_cols"],
+            options=self.setting["csv"][self.csv]["non_use_cols"],
             disabled=False
         )
-        value = self.setting_dict["use_cols"]
+        value = self.setting["csv"][self.csv]["use_cols"]
         self._use_col_w = widgets.SelectMultiple(
             description='Use',
-            options=self.setting_dict["use_cols"],
+            options=self.setting["csv"][self.csv]["use_cols"],
             value=value,
             disabled=False
         )
@@ -128,7 +141,7 @@ class GUIML:
         self._target_col_w = widgets.Select(
             description='Target',
             options=list(df.columns),
-            value=self.setting_dict["target_col"]
+            value=self.setting["csv"][self.csv]["target_col"]
         )
 
         return display(
@@ -141,35 +154,37 @@ class GUIML:
         if df is None:
             df = self.df
 
-        self.setting_dict["use_cols"] = list(self._use_col_w.options)
-        self.setting_dict["non_use_cols"] = list(self._non_use_col_w.options)
-        self.setting_dict["target_col"] = self._target_col_w.value
+        self.setting["csv"][self.csv]["use_cols"] = list(
+            self._use_col_w.options)
+        self.setting["csv"][self.csv]["non_use_cols"] = list(
+            self._non_use_col_w.options)
+        self.setting["csv"][self.csv]["target_col"] = self._target_col_w.value
 
         self._save()
 
-        cols = [self.setting_dict["target_col"]]
-        cols.extend(self.setting_dict["use_cols"])
+        cols = [self.setting["csv"][self.csv]["target_col"]]
+        cols.extend(self.setting["csv"][self.csv]["use_cols"])
         self.sel_df = df[cols]
 
         return self.sel_df
 
     def select_mol_descriptors(self):
-        if "SMILES_col" not in self.setting_dict:
-            self.setting_dict["SMILES_col"] = None
-        if "descriptors" not in self.setting_dict:
-            self.setting_dict["descriptors"] = ()
+        if "SMILES_col" not in self.setting["csv"][self.csv]:
+            self.setting["csv"][self.csv]["SMILES_col"] = None
+        if "descriptors" not in self.setting["csv"][self.csv]:
+            self.setting["csv"][self.csv]["descriptors"] = ()
 
         self._smiles_col_w = widgets.Select(
             description='SMILES',
             options=list(self.df.columns),
-            value=self.setting_dict["SMILES_col"],
+            value=self.setting["csv"][self.csv]["SMILES_col"],
         )
 
         self._mol_descriptor_w = widgets.SelectMultiple(
             description='Select descriptors',
             options=["RDKit", "Mordred(2D)", "Mordred(3D)",
                      "JR", "Avalon Fingerprint"],
-            value=self.setting_dict["descriptors"]
+            value=self.setting["csv"][self.csv]["descriptors"]
         )
 
         return display(
@@ -183,13 +198,13 @@ class GUIML:
             only_desc_df_mode = False
 
         # update form info
-        self.setting_dict["SMILES_col"] = self._smiles_col_w.value
-        self.setting_dict["descriptors"] = self._mol_descriptor_w.value
+        self.setting["csv"][self.csv]["SMILES_col"] = self._smiles_col_w.value
+        self.setting["csv"][self.csv]["descriptors"] = self._mol_descriptor_w.value
         self._save()
 
         # initiate calculator
         calculators = []
-        for desc_name in self.setting_dict["descriptors"]:
+        for desc_name in self.setting["csv"][self.csv]["descriptors"]:
             if desc_name == "RDKit":
                 calculators.append(RDKitDescriptors())
             elif desc_name == "Mordred(2D)":
@@ -210,7 +225,8 @@ class GUIML:
         # return only descriptors
         if only_desc_df_mode:
             return desc_df
-        desc_df = desc_df.drop(self.setting_dict["SMILES_col"], axis=1)
+        desc_df = desc_df.drop(
+            self.setting["csv"][self.csv]["SMILES_col"], axis=1)
         merge_df = pd.merge(self.df, desc_df, left_index=True,
                             right_index=True, how="outer")
         self.df = merge_df
@@ -221,8 +237,8 @@ class GUIML:
             sel_df = self.sel_df
 
         # drop nan
-        sel_df = sel_df[sel_df[self.setting_dict["target_col"]]
-                        == sel_df[self.setting_dict["target_col"]]]
+        sel_df = sel_df[sel_df[self.setting["csv"][self.csv]["target_col"]]
+                        == sel_df[self.setting["csv"][self.csv]["target_col"]]]
 
         # split train test
         tot_records = sel_df.shape[0]
@@ -239,10 +255,10 @@ class GUIML:
 
         # set X and y
         self.tr_X = self._prepare_X(tr_df)
-        self.tr_y = tr_df[[self.setting_dict["target_col"]]]
+        self.tr_y = tr_df[[self.setting["csv"][self.csv]["target_col"]]]
 
         self.te_X = self._prepare_X(te_df)
-        self.te_y = te_df[[self.setting_dict["target_col"]]]
+        self.te_y = te_df[[self.setting["csv"][self.csv]["target_col"]]]
 
         self.tr_y = np.array(self.tr_y.values).reshape(-1)
         self.te_y = np.array(self.te_y.values).reshape(-1)
@@ -252,7 +268,7 @@ class GUIML:
         return self.tr_X, self.te_X, self.tr_y, self.te_y
 
     def _prepare_X(self, df):
-        for col in [self.setting_dict["target_col"],
+        for col in [self.setting["csv"][self.csv]["target_col"],
                     self.category_col_name,
                     "predicted"]:
 
