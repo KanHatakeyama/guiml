@@ -8,7 +8,7 @@ class CSVSelector(GUIML):
     def __init__(self, save_name="guiml"):
         super().__init__(save_name)
 
-    def select_csv(self, regex="database/*.csv"):
+    def __call__(self, regex="database/*.csv"):
         """
         select box of csv files 
         """
@@ -43,7 +43,7 @@ class CSVSelector(GUIML):
 
         return display(self._select_csv_w, button)
 
-    def load_csv(self):
+    def load(self):
         """
         load csv data
         """
@@ -59,6 +59,8 @@ class CSVSelector(GUIML):
         # load
         df = pd.read_csv(self.csv)
         #self.df = df
+
+        self.setting["current_csv"] = self.csv
 
         self._save()
         return df

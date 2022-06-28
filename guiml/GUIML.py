@@ -5,7 +5,6 @@ import joblib
 import pandas as pd
 import seaborn as sns
 import random
-from .Chem.Autodescriptor import AutoDescriptor, RDKitDescriptors, GroupContMethod, MordredDescriptor, Fingerprint
 from .gui.mol_plot import bokeh_plot, select_plot_columns
 
 TEMP_SAVE_FOLDER = "_guiml"
@@ -30,8 +29,10 @@ class GUIML:
         if not os.path.exists(self.setting_path):
             self.setting = {}
             self.setting["csv"] = {}
+
         else:
             self.setting = joblib.load(self.setting_path)
+            self.csv = self.setting["current_csv"]
 
     def _save(self):
         joblib.dump(self.setting, self.setting_path)
@@ -129,83 +130,6 @@ class GUIML:
         self.sel_df = df[cols]
 
         return self.sel_df
-
-    def select_mol_descriptors(self):
-        """
-        select SMILES column and descriptor types
-        """
-        if "SMILES_col" not in self.setting["csv"][self.csv]:
-            self.setting["csv"][self.csv]["SMILES_col"] = None
-        if "descriptors" not in self.setting["csv"][self.csv]:
-            self.setting["csv"][self.csv]["descriptors"] = ()
-
-        self._smiles_col_w = widgets.Select(
-            description='SMILES',
-            options=list(self.df.columns),
-            value=self.setting["csv"][self.csv]["SMILES_col"],
-        )
-
-        self._mol_descriptor_w = widgets.SelectMultiple(
-            description='Select descriptors',
-            options=["RDKit", "Mordred(2D)", "Mordred(3D)",
-                     "JR", "Avalon Fingerprint"],
-            value=self.setting["csv"][self.csv]["descriptors"]
-        )
-
-        return display(
-            self._smiles_col_w,
-            self._mol_descriptor_w)
-
-    def calculate_mol_descriptors(self, smiles_list=None):
-        """
-        calculate molecular descriptors
-        """
-
-        if self._smiles_col_w.value is None:
-            raise ValueError("Please select a SMILES column")
-
-        only_desc_df_mode = True
-        if smiles_list is None:
-            smiles_list = list(self.df[self._smiles_col_w.value])
-            only_desc_df_mode = False
-
-        # update form info
-        self.setting["csv"][self.csv]["SMILES_col"] = self._smiles_col_w.value
-        self.setting["csv"][self.csv]["descriptors"] = self._mol_descriptor_w.value
-        self._save()
-
-        # initiate calculator
-        calculators = []
-        for desc_name in self.setting["csv"][self.csv]["descriptors"]:
-            if desc_name == "RDKit":
-                calculators.append(RDKitDescriptors())
-            elif desc_name == "Mordred(2D)":
-                calculators.append(MordredDescriptor())
-            elif desc_name == "Mordred(3D)":
-                calculators.append(MordredDescriptor(ignore_3D=False))
-            if desc_name == "JR":
-                calculators.append(GroupContMethod())
-            if desc_name == "Avalon Fingerprint":
-                calculators.append(Fingerprint())
-
-        desc_calculator = AutoDescriptor(calculators=calculators)
-
-        # calcualte
-
-        desc_df = desc_calculator(smiles_list)
-
-        # return only descriptors
-        if only_desc_df_mode:
-            return desc_df
-        desc_df = desc_df.drop(
-            self.setting["csv"][self.csv]["SMILES_col"], axis=1)
-
-        merge_cols = list(desc_df.columns)
-        merge_cols = [i for i in merge_cols if i not in list(self.df.columns)]
-        merge_df = pd.merge(self.df, desc_df[merge_cols], left_index=True,
-                            right_index=True, how="outer")
-        self.df = merge_df
-        return merge_df
 
     def get_dataset(self, id_selector, sel_df=None):
         """
