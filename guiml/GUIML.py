@@ -16,6 +16,7 @@ class GUIML:
         self.save_name = save_name
         self.setting_path = TEMP_SAVE_FOLDER+"/"+save_name+".bin"
 
+        self.csv = "unknown_csv"
         # load dict data
         if not os.path.exists(TEMP_SAVE_FOLDER):
             os.mkdir(TEMP_SAVE_FOLDER)
