@@ -12,6 +12,11 @@ class DescriptorSelector(GUIML):
         """
         select SMILES column and descriptor types
         """
+        try:
+            self.csv = self.csv
+        except:
+            self.csv = "unknown_csv"
+
         if "SMILES_col" not in self.setting["csv"][self.csv]:
             self.setting["csv"][self.csv]["SMILES_col"] = None
         if "descriptors" not in self.setting["csv"][self.csv]:
