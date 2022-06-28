@@ -4,7 +4,7 @@ import os
 import ipywidgets as widgets
 import joblib
 import pandas as pd
-
+import seaborn as sns
 import random
 from .Chem.Autodescriptor import AutoDescriptor, RDKitDescriptors, GroupContMethod, MordredDescriptor, Fingerprint
 from .gui.mol_plot import bokeh_plot, select_plot_columns
@@ -345,8 +345,9 @@ class GUIML:
             self.setting["csv"][self.csv]["plot_cols"]["x"] = self.w_x.value
             self.setting["csv"][self.csv]["plot_cols"]["y"] = self.w_y.value
             self.setting["csv"][self.csv]["plot_cols"]["hue"] = self.w_hue.value
+            self.setting["csv"][self.csv]["plot_cols"]["program"] = self.w_plot_program.value
         except:
-            pass
+            self.setting["csv"][self.csv]["plot_cols"]["program"] = "Seaborn"
 
         for k in ["x", "y", "hue"]:
             if self.setting["csv"][self.csv]["plot_cols"][k] not in list(df.columns):
@@ -357,10 +358,24 @@ class GUIML:
                                                                   self.setting["csv"][self.csv]["plot_cols"]["y"],
                                                                   self.setting["csv"][self.csv]["plot_cols"]["hue"],
                                                                   )
-        display(box)
+        # plot program
+        self.w_plot_program = widgets.Dropdown(
+            description='Plot program',
+            options=["Seaborn", "Bokeh"],
+            value=self.setting["csv"][self.csv]["plot_cols"]["program"],
+        )
+        display(box, self.w_plot_program)
 
         # plot graph
-        bokeh_plot(df,
-                   self.setting["csv"][self.csv]["plot_cols"]["x"],
-                   self.setting["csv"][self.csv]["plot_cols"]["y"],
-                   self.setting["csv"][self.csv]["plot_cols"]["hue"],)
+
+        if self.w_plot_program.value == "Seaborn":
+            return sns.scatterplot(data=df,
+                                 x=self.setting["csv"][self.csv]["plot_cols"]["x"],
+                                 y=self.setting["csv"][self.csv]["plot_cols"]["y"],
+                                 hue=self.setting["csv"][self.csv]["plot_cols"]["hue"],
+                                 )
+        else:
+            return bokeh_plot(df,
+                              self.setting["csv"][self.csv]["plot_cols"]["x"],
+                              self.setting["csv"][self.csv]["plot_cols"]["y"],
+                              self.setting["csv"][self.csv]["plot_cols"]["hue"],)

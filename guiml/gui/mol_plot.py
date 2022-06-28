@@ -72,13 +72,20 @@ def bokeh_plot(show_df: pd.DataFrame,
                 <tr><td>{col_x} @{col_x}</td></tr>
                 <tr><td>{col_y} @{col_y}</td></tr>
                 <tr><td>{hue_name} @{hue_name}</td></tr>
-                <tr><td style="padding:2px;">
-                    <img
-                    src="@image_files" height="120" alt="image"
-                    style="float: left; margin: 0px 15px 15px 0px; image-rendering: pixelated;"
-                    border="2"
-                    ></img>
-                </td></tr>
+    """
+
+    # smiles images
+    if "image_files" in show_df.columns:
+        TOOLTIPS += """
+                    <tr><td style="padding:2px;">
+                        <img
+                        src="@image_files" height="120" alt="image"
+                        style="float: left; margin: 0px 15px 15px 0px; image-rendering: pixelated;"
+                        border="2"
+                        ></img>
+                    </td></tr>
+        """
+    TOOLTIPS += """
             </table>
         </div>
     """
