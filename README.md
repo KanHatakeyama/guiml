@@ -22,3 +22,8 @@
 
 # Requirements
 - TBD
+
+# Author
+  - Kan Hatakeyama-Sato
+  - Waseda University
+  - https://kanhatakeyama.github.io/
