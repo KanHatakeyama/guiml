@@ -24,6 +24,7 @@ class GUIML:
         if not os.path.exists(self.setting_path):
             self.setting = {}
             self.setting["csv"] = {}
+            self.setting["csv"]["unknown_csv"] = {}
 
         else:
             self.setting = joblib.load(self.setting_path)
