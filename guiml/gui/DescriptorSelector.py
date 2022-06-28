@@ -81,6 +81,8 @@ class DescriptorSelector(GUIML):
         # return only descriptors
         if only_desc_df_mode:
             return desc_df
+
+        # merge to original DF
         desc_df = desc_df.drop(
             self.setting["csv"][self.csv]["SMILES_col"], axis=1)
 

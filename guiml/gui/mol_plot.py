@@ -11,7 +11,10 @@ from bokeh.transform import linear_cmap
 from bokeh.plotting import figure
 from bokeh.transform import factor_cmap
 from bokeh.io import show
+import joblib
 
+# temp image path
+TEMP_IMAGE_PATH = "_guiml/chem_images.bin"
 
 """
 plot chemical data
@@ -40,13 +43,25 @@ def sm_to_img(smiles):
 def prepare_images(show_df: pd.DataFrame,
                    df: pd.DataFrame,
                    smiles_col: list):
+
+    try:
+        img_dict = joblib.load(TEMP_IMAGE_PATH)
+    except:
+        img_dict = {}
+
     # make molecular images
     images = []
+
     for smiles in df[smiles_col]:
-        try:
-            img = sm_to_img(smiles)
-        except:
-            img = sm_to_img("C")
+        if smiles in img_dict:
+            img = img_dict[smiles]
+        else:
+            try:
+                img = sm_to_img(smiles)
+            except:
+                img = sm_to_img("C")
+            img_dict[smiles] = img
+
         images.append(img)
 
     filenames = b64_image_files(images)
@@ -55,6 +70,7 @@ def prepare_images(show_df: pd.DataFrame,
     show_df = pd.merge(show_df, img_df, left_index=True,
                        right_index=True, how="inner")
 
+    joblib.dump(img_dict, TEMP_IMAGE_PATH)
     return show_df
 
 
