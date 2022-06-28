@@ -25,6 +25,7 @@ class GUIML:
             self.setting = {}
             self.setting["csv"] = {}
             self.setting["csv"]["unknown_csv"] = {}
+            self._save()
 
         else:
             self.setting = joblib.load(self.setting_path)
