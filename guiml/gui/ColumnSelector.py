@@ -90,4 +90,6 @@ class ColumnSelector(GUIML):
 
         cols = [self.setting["csv"][self.csv]["target_col"]]
         cols.extend(self.setting["csv"][self.csv]["use_cols"])
+        cols = list(set(cols))
+
         return self.df[cols]
