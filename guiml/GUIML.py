@@ -1,4 +1,3 @@
-import glob
 import numpy as np
 import os
 import ipywidgets as widgets
@@ -14,10 +13,12 @@ TEMP_SAVE_FOLDER = "_guiml"
 
 class GUIML:
     def __init__(self, save_name="guiml",
-                 category_col_name="dataset_category"):
+                 # category_col_name="dataset_category"
+                 ):
         """
 
         """
+        category_col_name = "dataset_category"
         self.category_col_name = category_col_name
         self.save_name = save_name
         self.setting_path = TEMP_SAVE_FOLDER+"/"+save_name+".bin"
@@ -34,61 +35,6 @@ class GUIML:
 
     def _save(self):
         joblib.dump(self.setting, self.setting_path)
-
-    def select_csv(self, regex="database/*.csv"):
-        """
-        select box of csv files 
-        """
-        file_path_list = glob.glob(regex)
-
-        # set default value
-        value = file_path_list[0]
-
-        # set default value (by loading dict)
-        if "current_csv" in self.setting:
-            candidate_path = self.setting["current_csv"]
-            if candidate_path in file_path_list:
-                value = candidate_path
-
-        # widget
-        self._select_csv_w = widgets.Select(
-            options=file_path_list,
-            description='Select database file',
-            disabled=False,
-            value=value
-        )
-
-        # reset setting button
-        def button_clicked(b):
-            self.setting = {}
-            self._save()
-            self.setting["csv"] = {}
-
-        # widgets
-        button = widgets.Button(description="Reset settings")
-        button.on_click(button_clicked)
-
-        return display(self._select_csv_w, button)
-
-    def load_csv(self):
-        """
-        load csv data
-        """
-
-        # set current csv
-        self.setting["current_csv"] = self._select_csv_w.value
-        self.csv = self._select_csv_w.value
-
-        # make new dict for the csv
-        if self.csv not in self.setting["csv"]:
-            self.setting["csv"][self.csv] = {}
-
-        # load
-        df = pd.read_csv(self.csv)
-        self.df = df
-
-        self._save()
-        return df
 
     def select_columns(self, df=None):
         """
@@ -370,10 +316,10 @@ class GUIML:
 
         if self.w_plot_program.value == "Seaborn":
             return sns.scatterplot(data=df,
-                                 x=self.setting["csv"][self.csv]["plot_cols"]["x"],
-                                 y=self.setting["csv"][self.csv]["plot_cols"]["y"],
-                                 hue=self.setting["csv"][self.csv]["plot_cols"]["hue"],
-                                 )
+                                   x=self.setting["csv"][self.csv]["plot_cols"]["x"],
+                                   y=self.setting["csv"][self.csv]["plot_cols"]["y"],
+                                   hue=self.setting["csv"][self.csv]["plot_cols"]["hue"],
+                                   )
         else:
             return bokeh_plot(df,
                               self.setting["csv"][self.csv]["plot_cols"]["x"],

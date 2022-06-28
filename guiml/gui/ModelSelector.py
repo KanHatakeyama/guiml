@@ -2,7 +2,11 @@ import ipywidgets as widgets
 
 
 class ModelSelector:
-    def __init__(self, model_list):
+    """
+    select ML models
+    """
+
+    def __init__(self, model_list: list):
         self.model_list = model_list
 
         model_name_list = [

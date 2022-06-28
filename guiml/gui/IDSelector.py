@@ -1,10 +1,15 @@
 
 import random
 import ipywidgets as widgets
+import pandas as pd
 
 
 class IDSelector:
-    def __init__(self, df):
+    """
+    select ids
+    """
+
+    def __init__(self, df: pd.DataFrame):
         self.df = df
         self.train_ids = list(self.df.index)
         self.test_ids = []
