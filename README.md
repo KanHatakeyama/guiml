@@ -2,7 +2,7 @@
 # GUI wrapper modules for materials informatics (MI) of Python
 
 # Install
-- pip3 install .
+- pip3 install git+https://github.com/KanHatakeyama/guiml.git
 
 # What?
 - (Hopefully) Programming-free interface of Python and machine learning
