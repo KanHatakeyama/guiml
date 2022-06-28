@@ -3,6 +3,8 @@
 
 # Install
 - pip3 install git+https://github.com/KanHatakeyama/guiml.git
+- or
+- pip3 install --force-reinstall  git+https://github.com/KanHatakeyama/guiml.git
 
 # What?
 - (Hopefully) Programming-free interface of Python and machine learning
