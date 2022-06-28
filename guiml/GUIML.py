@@ -1,9 +1,5 @@
-import numpy as np
 import os
-import ipywidgets as widgets
 import joblib
-import pandas as pd
-import random
 
 TEMP_SAVE_FOLDER = "_guiml"
 CATEGORY_COL_NAME = "dataset_category"

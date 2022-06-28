@@ -1,6 +1,4 @@
 from ..GUIML import GUIML
-import pandas as pd
-import ipywidgets as widgets
 import numpy as np
 
 
