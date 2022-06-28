@@ -43,6 +43,9 @@ class CSVSelector(GUIML):
 
         return display(self._select_csv_w, button)
 
+    def get_filename(self):
+        return self._select_csv_w.value
+
     def load(self):
         """
         load csv data
