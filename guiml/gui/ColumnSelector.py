@@ -6,7 +6,7 @@ class ColumnSelector(GUIML):
     def __init__(self, save_name="guiml"):
         super().__init__(save_name)
 
-    def _reset(self):
+    def _reset(self, df):
         self.setting["csv"][self.csv]["use_cols"] = []
         self.setting["csv"][self.csv]["non_use_cols"] = list(df.columns)
         self.setting["csv"][self.csv]["target_col"] = None
@@ -18,12 +18,15 @@ class ColumnSelector(GUIML):
 
         # initial vals
         if not "use_cols" in self.setting["csv"][self.csv]:
-            self._reset()
+            self._reset(df)
 
-        for c in df.columns:
-            if c not in self.setting["csv"][self.csv]["use_cols"]:
-                if c not in self.setting["csv"][self.csv]["non_use_cols"]:
-                    self.setting["csv"][self.csv]["non_use_cols"].append(c)
+        try:
+            for c in df.columns:
+                if c not in self.setting["csv"][self.csv]["use_cols"]:
+                    if c not in self.setting["csv"][self.csv]["non_use_cols"]:
+                        self.setting["csv"][self.csv]["non_use_cols"].append(c)
+        except:
+            self._reset(df)
 
         # button click
         def add_button_clicked(b):
@@ -80,7 +83,7 @@ class ColumnSelector(GUIML):
 
         # reset
         def reset_button_clicked(b):
-            self._reset()
+            self._reset(df)
             self._save()
         reset_button = widgets.Button(description="Reset")
         reset_button.on_click(reset_button_clicked)
