@@ -6,6 +6,11 @@ class ColumnSelector(GUIML):
     def __init__(self, save_name="guiml"):
         super().__init__(save_name)
 
+    def _reset(self):
+        self.setting["csv"][self.csv]["use_cols"] = []
+        self.setting["csv"][self.csv]["non_use_cols"] = list(df.columns)
+        self.setting["csv"][self.csv]["target_col"] = None
+
     def __call__(self, df):
         """
         Select box to choose columns for ML
@@ -13,9 +18,7 @@ class ColumnSelector(GUIML):
 
         # initial vals
         if not "use_cols" in self.setting["csv"][self.csv]:
-            self.setting["csv"][self.csv]["use_cols"] = []
-            self.setting["csv"][self.csv]["non_use_cols"] = list(df.columns)
-            self.setting["csv"][self.csv]["target_col"] = None
+            self._reset()
 
         for c in df.columns:
             if c not in self.setting["csv"][self.csv]["use_cols"]:
@@ -74,10 +77,18 @@ class ColumnSelector(GUIML):
 
         self._target_col_w.layout.width = "70%"
         self.df = df
+
+        # reset
+        def reset_button_clicked(b):
+            self._reset()
+            self._save()
+        reset_button = widgets.Button(description="Reset")
+        reset_button.on_click(reset_button_clicked)
+
         return display(
             self._target_col_w,
             widgets.HBox([self._non_use_col_w, self._use_col_w]),
-            widgets.HBox([remove_button, add_button]),
+            widgets.HBox([remove_button, add_button, reset_button_clicked]),
         )
 
     def load(self):
