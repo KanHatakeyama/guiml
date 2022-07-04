@@ -4,7 +4,7 @@ import sys
 sys.path.append('./guiml')
 
 setup(name='guiml',
-      version='0.0.2',
+      version='0.0.3',
       description='guiml',
       long_description="README",
       author='Kan Hatakeyama',

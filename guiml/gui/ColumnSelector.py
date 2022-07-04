@@ -10,6 +10,7 @@ class ColumnSelector(GUIML):
         """
         Select box to choose columns for ML
         """
+
         # initial vals
         if not "use_cols" in self.setting["csv"][self.csv]:
             self.setting["csv"][self.csv]["use_cols"] = []
@@ -48,16 +49,14 @@ class ColumnSelector(GUIML):
         self._non_use_col_w = widgets.SelectMultiple(
             description='Non-use',
             options=self.setting["csv"][self.csv]["non_use_cols"],
-            disabled=False
         )
-
         self._non_use_col_w.layout.width = "40%"
+
         value = self.setting["csv"][self.csv]["use_cols"]
         self._use_col_w = widgets.SelectMultiple(
             description='Use',
             options=self.setting["csv"][self.csv]["use_cols"],
             value=value,
-            disabled=False
         )
         self._use_col_w.layout.width = "40%"
 

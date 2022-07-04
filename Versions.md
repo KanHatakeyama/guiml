@@ -1,0 +1,1 @@
+0.0.3: Modify setting reset bug of CSVSelector

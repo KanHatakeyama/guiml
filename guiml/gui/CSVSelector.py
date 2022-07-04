@@ -45,7 +45,11 @@ class CSVSelector(GUIML):
 
     def get_filename(self):
         self.setting["current_csv"] = self._select_csv_w.value
-        self.setting["csv"][self._select_csv_w.value] = {}
+        file_name = self._select_csv_w.value
+
+        if file_name not in self.setting["csv"]:
+            self.setting["csv"][file_name] = {}
+
         self._save()
         return self._select_csv_w.value
 
