@@ -88,7 +88,7 @@ class ColumnSelector(GUIML):
         return display(
             self._target_col_w,
             widgets.HBox([self._non_use_col_w, self._use_col_w]),
-            widgets.HBox([remove_button, add_button, reset_button_clicked]),
+            widgets.HBox([remove_button, add_button, reset_button]),
         )
 
     def load(self):
