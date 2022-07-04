@@ -2,6 +2,7 @@ from ..GUIML import GUIML
 import glob
 import pandas as pd
 import ipywidgets as widgets
+import os
 
 
 class CSVSelector(GUIML):
@@ -33,6 +34,7 @@ class CSVSelector(GUIML):
 
         # reset setting button
         def button_clicked(b):
+            os.remove(self.setting_path)
             self.setting = {}
             self.setting["csv"] = {}
             self.csv = "unknown_csv"
