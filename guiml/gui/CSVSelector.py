@@ -37,6 +37,7 @@ class CSVSelector(GUIML):
             self._save()
             self.setting["csv"] = {}
             self.csv = "unknown_csv"
+            self.setting["current_csv"] = self.csv
 
         # widgets
         button = widgets.Button(description="Reset settings")
