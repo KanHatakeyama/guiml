@@ -50,6 +50,8 @@ class ColumnSelector(GUIML):
             options=self.setting["csv"][self.csv]["non_use_cols"],
             disabled=False
         )
+
+        self._non_use_col_w.layout.width = "40%"
         value = self.setting["csv"][self.csv]["use_cols"]
         self._use_col_w = widgets.SelectMultiple(
             description='Use',
@@ -57,6 +59,7 @@ class ColumnSelector(GUIML):
             value=value,
             disabled=False
         )
+        self._use_col_w.layout.width = "40%"
 
         add_button.on_click(add_button_clicked)
         remove_button.on_click(remove_button_clicked)
@@ -68,6 +71,7 @@ class ColumnSelector(GUIML):
             value=self.setting["csv"][self.csv]["target_col"]
         )
 
+        self._target_col_w.layout.width = "70%"
         self.df = df
         return display(
             self._target_col_w,
